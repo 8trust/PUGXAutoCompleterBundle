@@ -18,12 +18,6 @@
             $.ajax({
                 url: (settings.url_get.substring(-1) === '/' ? settings.url_get : settings.url_get + '/') + initVal ,
                 success: function (data) {
-                    //  val = name;
-                    //  console.log('namenamenamenamename',val);
-                    // // debugger;
-                    //  $fakeInput.select2('val', name[0]);
-                    //  $fakeInput.select2('val', name[1]);
-//
                     $.each(data, function (index, item) {
                         vals.push({
                             id: item.id,

@@ -2,6 +2,7 @@
 
 namespace PUGX\AutocompleterBundle\Form\Transformer;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
@@ -26,11 +27,11 @@ class ObjectToIdTransformer implements DataTransformerInterface
     /**
      * @param string $class
      */
-    public function __construct(ManagerRegistry $registry, $class,$isMany2Many=false)
+    public function __construct(ManagerRegistry $registry, $class, $isMany2Many = false)
     {
         $this->registry = $registry;
         $this->class = $class;
-        $this->isMany2Many=$isMany2Many;
+        $this->isMany2Many = $isMany2Many;
     }
 
     /**
@@ -46,7 +47,7 @@ class ObjectToIdTransformer implements DataTransformerInterface
             return '';
         }
         if ($this->isMany2Many) {
-            return implode(',',$object->map(function ($obj){
+            return implode(',', $object->map(function ($obj) {
                 return $obj->getId();
             })->toArray());
         }
@@ -57,20 +58,23 @@ class ObjectToIdTransformer implements DataTransformerInterface
     /**
      * Transforms a string (id) to an object (object).
      *
-     * @param string $id
+     * @param string|int|null $id
      *
      * @throws TransformationFailedException if object (object) is not found
      *
-     * @return object|null
+     * @return object|null|array
      */
-    public function reverseTransform($id)
+    public function reverseTransform($id): ?object
     {
         if (empty($id)) {
-            return;
+            if ($this->isMany2Many) {
+                return [];
+            }
+            return null;
         }
         $ids = false;
         if ($this->isMany2Many) {
-            $ids = explode(',',$id);
+            $ids = explode(',', $id);
             $collection = [];
             foreach ($ids as $id) {
 
@@ -81,12 +85,12 @@ class ObjectToIdTransformer implements DataTransformerInterface
                 $collection[] = $object;
             }
 
-
             return new ArrayCollection($collection);
-        }else{
+        } else {
             $object = $this->registry->getManagerForClass($this->class)->getRepository($this->class)->find($id);
             if (null === $object) {
-                throw new TransformationFailedException(\sprintf('Object from class %s with id "%s" not found', $this->class, $id));
+                $msg = 'Object from class %s with id "%s" not found';
+                throw new TransformationFailedException(\sprintf($msg, $this->class, $id));
             }
 
             return $object;
