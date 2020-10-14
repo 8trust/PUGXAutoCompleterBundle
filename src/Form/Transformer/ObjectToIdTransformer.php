@@ -76,15 +76,11 @@ class ObjectToIdTransformer implements DataTransformerInterface
         if ($this->isMany2Many) {
             $ids = explode(',', $id);
             $collection = [];
-            foreach ($ids as $id) {
+            $objects = $this->registry->getManagerForClass($this->class)->getRepository($this->class)->findBy(['id' => $ids]);
 
-                $object = $this->registry->getManagerForClass($this->class)->getRepository($this->class)->find($id);
-                if (null === $object) {
-                    throw new TransformationFailedException(\sprintf('Object from class %s with id "%s" not found', $this->class, $id));
-                }
-                $collection[] = $object;
+            if (!empty($objects)) {
+                $collection = $objects;
             }
-
             return new ArrayCollection($collection);
         } else {
             $object = $this->registry->getManagerForClass($this->class)->getRepository($this->class)->find($id);
