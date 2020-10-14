@@ -64,7 +64,7 @@ class ObjectToIdTransformer implements DataTransformerInterface
      *
      * @return object|null|array
      */
-    public function reverseTransform($id): ?object
+    public function reverseTransform($id)
     {
         if (empty($id)) {
             if ($this->isMany2Many) {
