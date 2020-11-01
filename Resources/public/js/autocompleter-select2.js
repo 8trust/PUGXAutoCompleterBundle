@@ -5,6 +5,7 @@
             url_list: '',
             url_get: '',
             placeholder: '',
+            multiple: false,
             otherOptions: {minimumInputLength: 2}
         };
         return this.each(function () {
@@ -13,10 +14,10 @@
             }
             var $this = $(this);
             var $fakeInput = $this.clone();
-            var vals=[];
-            var initVal=typeof $this.attr('value') === 'undefined'?'':$this.attr('value');
+            var vals = [];
+            var initVal = typeof $this.attr('value') === 'undefined' ? '' : $this.attr('value');
             $.ajax({
-                url: (settings.url_get.substring(-1) === '/' ? settings.url_get : settings.url_get + '/') + initVal ,
+                url: (settings.url_get.substring(-1) === '/' ? settings.url_get : settings.url_get + '/') + initVal,
                 success: function (data) {
                     $.each(data, function (index, item) {
                         vals.push({
@@ -53,13 +54,11 @@
                             return markup;
                         },
                         initSelection: function (element, callback) {
-                            console.log('initSelection');
-                            var data=[];
+                            var data = [];
                             vals.forEach(function (el) {
-                                data.push({id:el.id,text:el.text});
+                                data.push({id: el.id, text: el.text});
                             });
-                            //   var data = {id: element.val(), text: val};
-                            callback(data);
+                            callback(settings.multiple == false ? data[0] : data);
                         }
                     };
                     $this.removeAttr('required');
@@ -71,10 +70,10 @@
                     $fakeInput.attr('name', 'fake_' + $fakeInput.attr('name'));
                     $this.hide().after($fakeInput);
                     $fakeInput.select2(select2options);
-                   $fakeInput.on('change', function (e) {
-                       console.log('$fakeInput change');
-                       $this.val(e.val).change();
-                   });
+                    $fakeInput.on('change', function (e) {
+                        console.log('$fakeInput change');
+                        $this.val(e.val).change();
+                    });
                 }
             });
 
